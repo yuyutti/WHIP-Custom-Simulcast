@@ -30,6 +30,7 @@ class SimulcastController {
     void onFrontendEvent(enum obs_frontend_event event);
     void applyConfiguration();
     bool applyLayer(obs_encoder_t *encoder, size_t index, const LayerConfig &layer, uint32_t frameRateDivisor);
+    bool ensureCurrentVideo(obs_encoder_t *encoder, size_t index) const;
     bool captureEncoderState(obs_encoder_t *encoder, EncoderState &state) const;
     void restoreEncoderState(obs_encoder_t *encoder, size_t index, const EncoderState &state) const;
     int currentLayerCount() const;

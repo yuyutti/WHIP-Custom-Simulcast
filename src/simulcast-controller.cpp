@@ -136,6 +136,11 @@ void SimulcastController::applyConfiguration() {
             return;
         }
 
+        if (!ensureCurrentVideo(encoder, static_cast<size_t>(index))) {
+            obs_output_release(output);
+            return;
+        }
+
         EncoderState originalState;
         if (!captureEncoderState(encoder, originalState)) {
             blog(LOG_WARNING, LOG_PREFIX "Configuration not applied because layer %d state could not be captured",
@@ -168,6 +173,25 @@ void SimulcastController::applyConfiguration() {
 
     blog(LOG_INFO, LOG_PREFIX "Configuration applied successfully to %zu custom layer(s)", plannedLayers.size());
     obs_output_release(output);
+}
+
+bool SimulcastController::ensureCurrentVideo(obs_encoder_t *encoder, size_t index) const {
+    video_t *currentVideo = obs_get_video();
+    if (!currentVideo) {
+        blog(LOG_WARNING, LOG_PREFIX "Layer %zu could not be rebound because OBS video is unavailable", index);
+        return false;
+    }
+
+    if (obs_encoder_parent_video(encoder) != currentVideo) {
+        obs_encoder_set_video(encoder, currentVideo);
+    }
+
+    if (obs_encoder_parent_video(encoder) != currentVideo) {
+        blog(LOG_WARNING, LOG_PREFIX "Layer %zu could not be rebound to the current OBS video", index);
+        return false;
+    }
+
+    return true;
 }
 
 bool SimulcastController::captureEncoderState(obs_encoder_t *encoder, EncoderState &state) const {
@@ -225,6 +249,10 @@ bool SimulcastController::applyLayer(obs_encoder_t *encoder, size_t index, const
                                      uint32_t frameRateDivisor) {
     if (obs_encoder_active(encoder)) {
         blog(LOG_WARNING, LOG_PREFIX "Layer %zu encoder is already active; keeping OBS defaults", index);
+        return false;
+    }
+
+    if (!ensureCurrentVideo(encoder, index)) {
         return false;
     }
 

@@ -1,7 +1,7 @@
-{
+﻿{
     "dependencies": {
         "obs-studio": {
-            "version": "32.2.1",
+            "version": "0.3.0",
             "baseUrl": "https://github.com/obsproject/obs-studio/archive/refs/tags",
             "label": "OBS sources",
             "hashes": {
@@ -9,7 +9,7 @@
             }
         },
         "prebuilt": {
-            "version": "2026-07-15",
+            "version": "0.3.0",
             "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
             "label": "Pre-Built obs-deps",
             "hashes": {
@@ -17,7 +17,7 @@
             }
         },
         "qt6": {
-            "version": "2026-07-15",
+            "version": "0.3.0",
             "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
             "label": "Pre-Built Qt6",
             "hashes": {
@@ -35,8 +35,9 @@
     },
     "name": "whip-custom-simulcast",
     "displayName": "WHIP Custom Simulcast",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "author": "yuyutti",
     "website": "https://github.com/yuyutti/WHIP-Custom-Simulcast",
     "email": ""
 }
+
