@@ -29,6 +29,7 @@ class SettingsPanel : public QWidget {
 
     void setLayerCount(int layerCount);
     void attachButtons(QPushButton *applyButton, QPushButton *okButton);
+    void refreshObsSettings();
     bool commit();
 
   protected:

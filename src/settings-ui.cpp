@@ -348,6 +348,25 @@ void SettingsPanel::setLayerCount(int layerCount) {
     validate();
 }
 
+void SettingsPanel::refreshObsSettings() {
+    refreshMainLayer();
+
+    for (size_t index = 1; index < kMaxLayers; ++index) {
+        LayerEditor &editor = editors_[index];
+        const uint32_t selectedFps = editor.fps->currentData().toUInt();
+        const QSignalBlocker blocker(editor.fps);
+        editor.fps->clear();
+        populateFpsOptions(editor, selectedFps);
+
+        const int selectedIndex = editor.fps->findData(selectedFps);
+        if (selectedIndex >= 0) {
+            editor.fps->setCurrentIndex(selectedIndex);
+        }
+    }
+
+    validate();
+}
+
 void SettingsPanel::attachButtons(QPushButton *applyButton, QPushButton *okButton) {
     applyButton_ = applyButton;
     okButton_ = okButton;
@@ -572,6 +591,14 @@ void SettingsUiInjector::inject(QDialog *dialog) {
         const auto role = buttonBox->buttonRole(button);
         if (role == QDialogButtonBox::ApplyRole || role == QDialogButtonBox::AcceptRole) {
             panel->commit();
+        }
+        if (role == QDialogButtonBox::ApplyRole) {
+            const QPointer<SettingsPanel> guardedPanel(panel);
+            QTimer::singleShot(0, panel, [guardedPanel]() {
+                if (guardedPanel) {
+                    guardedPanel->refreshObsSettings();
+                }
+            });
         }
     });
 
