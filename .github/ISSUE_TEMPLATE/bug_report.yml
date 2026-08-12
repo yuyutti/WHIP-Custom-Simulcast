@@ -1,0 +1,84 @@
+name: Bug report
+description: WHIP Custom Simulcastの不具合を報告する
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        報告ありがとうございます。ログからWHIP URL、Bearer Token、配信キーなどの秘密情報を削除してください。
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: GitHub ReleaseまたはOBSログに表示されるバージョン
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: obs-version
+    attributes:
+      label: OBS Studio version
+      placeholder: 32.2.1
+    validations:
+      required: true
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2 x64
+    validations:
+      required: true
+  - type: input
+    id: encoder
+    attributes:
+      label: Encoder and output mode
+      placeholder: NVIDIA NVENC H.264 / Advanced
+    validations:
+      required: true
+  - type: textarea
+    id: layer-settings
+    attributes:
+      label: Simulcast settings
+      description: Total Layersと各レイヤーの解像度、FPS、bitrate
+      placeholder: |
+        Total Layers: 2
+        Layer 1: 1920x1080 / 60 fps / 8000 kbps
+        Layer 2: 854x480 / 30 fps / 700 kbps
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: 問題を再現できる最小の手順
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Relevant OBS log
+      description: 秘密情報を削除した関連部分、またはOBS Log AnalyzerのURL
+      render: text
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: OBS Studio 32.2.1で再現しました。
+          required: true
+        - label: ログと本文から秘密情報を削除しました。
+          required: true

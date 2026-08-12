@@ -1,0 +1,38 @@
+name: Feature request
+description: 改善や新機能を提案する
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: どのような操作や運用で困っているか説明してください。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: 希望する動作やUIを具体的に説明してください。
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: 現在の回避方法や検討した別案があれば記載してください。
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Area
+      options:
+        - Settings UI
+        - Encoder configuration
+        - WHIP compatibility
+        - Packaging or installation
+        - Documentation
+        - Other
+    validations:
+      required: true

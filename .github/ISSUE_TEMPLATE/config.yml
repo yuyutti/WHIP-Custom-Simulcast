@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/yuyutti/WHIP-Custom-Simulcast/security/advisories/new
+    about: 秘密情報を含む脆弱性は公開Issueではなく、Private Vulnerability Reportingを使用してください。
+  - name: OBS Studio support
+    url: https://obsproject.com/help
+    about: Plugin固有ではないOBS Studio本体の質問はこちらを利用してください。

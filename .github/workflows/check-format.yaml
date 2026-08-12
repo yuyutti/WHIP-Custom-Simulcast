@@ -1,0 +1,43 @@
+name: Check Code Formatting 🛠️
+on:
+  workflow_call:
+jobs:
+  markdownlint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Markdown check 📝
+        uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd # v23
+        with:
+          globs: |
+            *.md
+            docs/*.md
+            .github/*.md
+
+  clang-format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: clang-format check 🐉
+        id: clang-format
+        uses: ./.github/actions/run-clang-format
+        with:
+          failCondition: error
+
+  gersemi:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gersemi Check 🎛️
+        id: gersemi
+        uses: ./.github/actions/run-gersemi
+        with:
+          failCondition: error

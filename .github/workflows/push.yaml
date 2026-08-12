@@ -1,0 +1,115 @@
+name: Push
+run-name: ${{ github.ref_name }} push run 🚀
+on:
+  push:
+    branches:
+      - master
+      - main
+      - 'release/**'
+    tags:
+      - '*'
+permissions:
+  contents: write
+jobs:
+  check-format:
+    name: Check Formatting 🔍
+    if: github.ref_name == 'master' || github.ref_name == 'main'
+    uses: ./.github/workflows/check-format.yaml
+    permissions:
+      contents: read
+
+  build-project:
+    name: Build Project 🧱
+    uses: ./.github/workflows/build-project.yaml
+    permissions:
+      contents: read
+
+  create-release:
+    name: Create Release 🛫
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    needs: build-project
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Check Release Tag ☑️
+        id: check
+        run: |
+          : Check Release Tag ☑️
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+          shopt -s extglob
+          valid_tag=false
+
+          case "${GITHUB_REF_NAME}" in
+            +([0-9]).+([0-9]).+([0-9]) )
+              valid_tag=true
+              echo 'validTag=true' >> $GITHUB_OUTPUT
+              echo 'prerelease=false' >> $GITHUB_OUTPUT
+              echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+              ;;
+            +([0-9]).+([0-9]).+([0-9])-@(beta|rc)*([0-9]) )
+              valid_tag=true
+              echo 'validTag=true' >> $GITHUB_OUTPUT
+              echo 'prerelease=true' >> $GITHUB_OUTPUT
+              echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+              ;;
+            *) echo 'validTag=false' >> $GITHUB_OUTPUT ;;
+          esac
+
+          if [[ "${valid_tag}" == true ]]; then
+            repository_version="$(jq -r '.version' buildspec.json)"
+            tag_base_version="${GITHUB_REF_NAME%%-*}"
+            if [[ "${repository_version}" != "${tag_base_version}" ]]; then
+              echo "::error::Release tag base version ${tag_base_version} must match buildspec.json version ${repository_version}."
+              exit 1
+            fi
+          fi
+
+      - name: Download Build Artifacts 📥
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        if: fromJSON(steps.check.outputs.validTag)
+        id: download
+
+      - name: Rename Files 🏷️
+        if: fromJSON(steps.check.outputs.validTag)
+        run: |
+          : Rename Files 🏷️
+          if [[ "${RUNNER_DEBUG}" ]]; then set -x; fi
+          shopt -s extglob
+          shopt -s nullglob
+
+          root_dir="$(pwd)"
+          commit_hash="${GITHUB_SHA:0:9}"
+
+          variants=(
+            'windows-x64;zip|exe'
+          )
+
+          for variant_data in "${variants[@]}"; do
+            IFS=';' read -r variant suffix <<< "${variant_data}"
+
+            candidates=(*-${variant}-${commit_hash}/@(*|*-dbgsym).@(${suffix}))
+
+            for candidate in "${candidates[@]}"; do
+              mv "${candidate}" "${root_dir}"
+            done
+          done
+
+      - name: Create Release 🛫
+        if: fromJSON(steps.check.outputs.validTag)
+        id: create_release
+        uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564
+        with:
+          draft: true
+          prerelease: ${{ fromJSON(steps.check.outputs.prerelease) }}
+          tag_name: ${{ steps.check.outputs.version }}
+          name: ${{ needs.build-project.outputs.pluginDisplayName }} ${{ steps.check.outputs.version }}
+          generate_release_notes: true
+          files: |
+            ${{ github.workspace }}/${{ needs.build-project.outputs.pluginName }}-*-windows-x64-setup.exe
+            ${{ github.workspace }}/${{ needs.build-project.outputs.pluginName }}-*-windows-x64.zip

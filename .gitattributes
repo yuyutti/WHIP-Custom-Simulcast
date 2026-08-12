@@ -1,0 +1,9 @@
+* text=auto
+
+# Shell and formatter helpers must remain LF on Linux and macOS runners.
+build-aux/** text eol=lf
+.github/scripts/** text eol=lf
+
+# Keep native Windows scripts readable in Windows tooling.
+*.ps1 text eol=crlf
+*.iss text eol=crlf

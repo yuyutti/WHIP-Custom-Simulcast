@@ -1,0 +1,79 @@
+name: Build Project
+
+on:
+  workflow_call:
+    outputs:
+      pluginName:
+        description: Project name detected from buildspec.json
+        value: ${{ jobs.metadata.outputs.pluginName }}
+      pluginDisplayName:
+        description: Project display name detected from buildspec.json
+        value: ${{ jobs.metadata.outputs.pluginDisplayName }}
+
+jobs:
+  metadata:
+    name: Read build metadata
+    runs-on: ubuntu-24.04
+    outputs:
+      config: ${{ steps.setup.outputs.config }}
+      commitHash: ${{ steps.setup.outputs.commitHash }}
+      pluginName: ${{ steps.setup.outputs.pluginName }}
+      pluginDisplayName: ${{ steps.setup.outputs.pluginDisplayName }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Read buildspec.json
+        id: setup
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_NAME}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(rc|beta).+)?$ ]]; then
+            echo "config=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "config=RelWithDebInfo" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "commitHash=${GITHUB_SHA:0:9}" >> "$GITHUB_OUTPUT"
+          echo "pluginName=$(jq -r '.name' buildspec.json)" >> "$GITHUB_OUTPUT"
+          echo "pluginDisplayName=$(jq -r '.displayName // .name' buildspec.json)" >> "$GITHUB_OUTPUT"
+
+  windows-build:
+    name: Build for Windows x64
+    runs-on: windows-2022
+    needs: metadata
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read plugin metadata
+        id: setup
+        shell: pwsh
+        run: |
+          $buildSpec = Get-Content -LiteralPath buildspec.json -Raw | ConvertFrom-Json
+          "pluginName=$($buildSpec.name)" >> $env:GITHUB_OUTPUT
+          "pluginVersion=$($buildSpec.version)" >> $env:GITHUB_OUTPUT
+
+      - name: Build plugin
+        uses: ./.github/actions/build-plugin
+        with:
+          target: x64
+          config: ${{ needs.metadata.outputs.config }}
+
+      - name: Package plugin
+        uses: ./.github/actions/package-plugin
+        with:
+          target: x64
+          config: ${{ needs.metadata.outputs.config }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64-${{ needs.metadata.outputs.commitHash }}
+          path: |
+            ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64.zip
+            ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64-setup.exe
+          if-no-files-found: error
+          retention-days: 14

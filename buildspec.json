@@ -1,0 +1,42 @@
+{
+    "dependencies": {
+        "obs-studio": {
+            "version": "32.2.1",
+            "baseUrl": "https://github.com/obsproject/obs-studio/archive/refs/tags",
+            "label": "OBS sources",
+            "hashes": {
+                "windows-x64": "0cc1bd46a3d60c8f4317b38c27414fc0472e04609f4e67ad2142ed1598ef5462"
+            }
+        },
+        "prebuilt": {
+            "version": "2026-07-15",
+            "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
+            "label": "Pre-Built obs-deps",
+            "hashes": {
+                "windows-x64": "6f90e9598fa10cff5ad23cdcfae49b87868c07bf896b02cd464582b4ce2f2ba9"
+            }
+        },
+        "qt6": {
+            "version": "2026-07-15",
+            "baseUrl": "https://github.com/obsproject/obs-deps/releases/download",
+            "label": "Pre-Built Qt6",
+            "hashes": {
+                "windows-x64": "7c7f985711d80467bdc1795b6592275a27d5b0e5a2c7a61db1f2c1d08d6a5579"
+            },
+            "debugSymbols": {
+                "windows-x64": "471d0b2191c424a520a51d064f3741084f117e1ff6ee5af1d16aabcdbacc6659"
+            }
+        }
+    },
+    "platformConfig": {
+        "macos": {
+            "bundleId": "com.yuyutti.whip-custom-simulcast"
+        }
+    },
+    "name": "whip-custom-simulcast",
+    "displayName": "WHIP Custom Simulcast",
+    "version": "0.1.0",
+    "author": "yuyutti",
+    "website": "https://github.com/yuyutti/WHIP-Custom-Simulcast",
+    "email": ""
+}
